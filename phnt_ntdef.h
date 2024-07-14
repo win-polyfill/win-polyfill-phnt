@@ -7,6 +7,127 @@
 #ifndef _PHNT_NTDEF_H
 #define _PHNT_NTDEF_H
 
+// Mode
+#define PHNT_MODE_KERNEL 0
+#define PHNT_MODE_USER 1
+
+// Version
+#define PHNT_WIN2K 50
+#define PHNT_WINXP 51
+#define PHNT_WS03 52
+#define PHNT_VISTA 60
+#define PHNT_WIN7 61
+#define PHNT_WIN8 62
+#define PHNT_WINBLUE 63
+#define PHNT_THRESHOLD 100
+#define PHNT_THRESHOLD2 101
+#define PHNT_REDSTONE 102
+#define PHNT_REDSTONE2 103
+#define PHNT_REDSTONE3 104
+#define PHNT_REDSTONE4 105
+#define PHNT_REDSTONE5 106
+#define PHNT_19H1 107
+#define PHNT_19H2 108
+#define PHNT_20H1 109
+#define PHNT_20H2 110
+#define PHNT_21H1 111
+#define PHNT_WIN10_21H2 112
+#define PHNT_WIN10_22H2 113
+#define PHNT_WIN11 114
+#define PHNT_WIN11_22H2 115
+#define PHNT_WIN11_23H2 116
+#define PHNT_WIN11_24H2 117
+
+#ifndef PHNT_MODE
+#define PHNT_MODE PHNT_MODE_USER
+#endif
+
+#ifndef PHNT_VERSION
+#define PHNT_VERSION PHNT_WIN11
+#endif
+
+// Options
+
+//#define PHNT_NO_INLINE_INIT_STRING
+
+#if (PHNT_MODE != PHNT_MODE_KERNEL)
+#include "win-polyfill-arch.h"
+
+#ifndef INT_ERROR
+#define INT_ERROR (-1)
+#endif
+
+#ifndef ULONG64_MAX
+#define ULONG64_MAX 0xffffffffffffffffui64
+#endif
+
+#ifndef SIZE_T_MAX
+#ifdef _WIN64
+#define SIZE_T_MAX 0xffffffffffffffffui64
+#else
+#define SIZE_T_MAX 0xffffffffUL
+#endif
+#endif
+
+#ifndef ENABLE_RTL_NUMBER_OF_V2
+#define ENABLE_RTL_NUMBER_OF_V2
+#endif
+
+#ifndef __cplusplus
+// This is needed to workaround C17 preprocessor errors when using legacy versions of the Windows SDK. (dmex)
+#ifndef MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS
+#define MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS 0
+#endif
+#endif
+
+#ifndef UMDF_USING_NTSTATUS
+#define UMDF_USING_NTSTATUS
+#endif
+#include <ntstatus.h>
+
+#include <windef.h>
+
+typedef double DOUBLE;
+typedef GUID *PGUID;
+
+#ifndef __PCGUID_DEFINED__
+#define __PCGUID_DEFINED__
+typedef const GUID* PCGUID;
+#endif
+
+#undef RtlMoveMemory
+#undef RtlZeroMemory
+#undef RtlFillMemory
+#undef RtlCopyMemory
+#define RtlCopyMemory RtlMoveMemory
+
+EXTERN_C
+NTSYSAPI
+VOID
+NTAPI
+RtlMoveMemory(
+    _Out_ VOID UNALIGNED *Destination,
+    _In_ const VOID UNALIGNED *Source,
+    _In_ SIZE_T Length);
+
+EXTERN_C
+NTSYSAPI
+VOID
+NTAPI
+RtlZeroMemory(
+   void* Destination,
+   SIZE_T Length);
+
+EXTERN_C
+NTSYSAPI
+VOID
+NTAPI
+RtlFillMemory(
+   void* Destination,
+   SIZE_T Length,
+   int Fill
+);
+
 #ifndef _NTDEF_
 #define _NTDEF_
 
@@ -52,6 +173,7 @@ typedef CSHORT *PCSHORT;
 typedef CLONG *PCLONG;
 
 typedef PCSTR PCSZ;
+typedef CONST WCHAR *LPCWCHAR, *PCWCHAR;
 
 typedef PVOID* PPVOID;
 
@@ -361,5 +483,55 @@ typedef struct _KSYSTEM_TIME
 #else
 #define POINTER_ALIGNMENT
 #endif
+
+// Desktop access rights
+#define DESKTOP_ALL_ACCESS \
+    (DESKTOP_CREATEMENU | DESKTOP_CREATEWINDOW | DESKTOP_ENUMERATE | \
+    DESKTOP_HOOKCONTROL | DESKTOP_JOURNALPLAYBACK | DESKTOP_JOURNALRECORD | \
+    DESKTOP_READOBJECTS | DESKTOP_SWITCHDESKTOP | DESKTOP_WRITEOBJECTS | \
+    STANDARD_RIGHTS_REQUIRED)
+#define DESKTOP_GENERIC_READ \
+    (DESKTOP_ENUMERATE | DESKTOP_READOBJECTS | STANDARD_RIGHTS_READ)
+#define DESKTOP_GENERIC_WRITE \
+    (DESKTOP_CREATEMENU | DESKTOP_CREATEWINDOW | DESKTOP_HOOKCONTROL | \
+    DESKTOP_JOURNALPLAYBACK | DESKTOP_JOURNALRECORD | DESKTOP_WRITEOBJECTS | \
+    STANDARD_RIGHTS_WRITE)
+#define DESKTOP_GENERIC_EXECUTE \
+    (DESKTOP_SWITCHDESKTOP | STANDARD_RIGHTS_EXECUTE)
+
+// Window station access rights
+#define WINSTA_GENERIC_READ \
+    (WINSTA_ENUMDESKTOPS | WINSTA_ENUMERATE | WINSTA_READATTRIBUTES | \
+    WINSTA_READSCREEN | STANDARD_RIGHTS_READ)
+#define WINSTA_GENERIC_WRITE \
+    (WINSTA_ACCESSCLIPBOARD | WINSTA_CREATEDESKTOP | WINSTA_WRITEATTRIBUTES | \
+    STANDARD_RIGHTS_WRITE)
+#define WINSTA_GENERIC_EXECUTE \
+    (WINSTA_ACCESSGLOBALATOMS | WINSTA_EXITWINDOWS | STANDARD_RIGHTS_EXECUTE)
+
+// WMI access rights
+#define WMIGUID_GENERIC_READ \
+    (WMIGUID_QUERY | WMIGUID_NOTIFICATION | WMIGUID_READ_DESCRIPTION | \
+    STANDARD_RIGHTS_READ)
+#define WMIGUID_GENERIC_WRITE \
+    (WMIGUID_SET | TRACELOG_CREATE_REALTIME | TRACELOG_CREATE_ONDISK | \
+    STANDARD_RIGHTS_WRITE)
+#define WMIGUID_GENERIC_EXECUTE \
+    (WMIGUID_EXECUTE | TRACELOG_GUID_ENABLE | TRACELOG_LOG_EVENT | \
+    TRACELOG_ACCESS_REALTIME | TRACELOG_REGISTER_GUIDS | \
+    STANDARD_RIGHTS_EXECUTE)
+
+// Note: Some parts of the Windows Runtime, COM or third party hooks are returning
+// S_FALSE and null pointers on errors when S_FALSE is a success code. (dmex)
+#define HR_SUCCESS(hr) (((HRESULT)(hr)) == S_OK)
+#define HR_FAILED(hr) (((HRESULT)(hr)) != S_OK)
+
+// Note: The CONTAINING_RECORD macro doesn't support UBSan and generates false positives,
+// we redefine the macro with FIELD_OFFSET as a workaround until the WinSDK is fixed (dmex)
+#undef CONTAINING_RECORD
+#define CONTAINING_RECORD(address, type, field) \
+    ((type *)((ULONG_PTR)(address) - UFIELD_OFFSET(type, field)))
+
+#endif // (PHNT_MODE != PHNT_MODE_KERNEL)
 
 #endif

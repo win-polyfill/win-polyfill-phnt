@@ -7,6 +7,8 @@
 #ifndef _NTSXS_H
 #define _NTSXS_H
 
+#include "phnt_ntdef.h"
+
 #define ACTIVATION_CONTEXT_DATA_MAGIC ('xtcA')
 #define ACTIVATION_CONTEXT_DATA_FORMAT_WHISTLER 1
 
@@ -503,11 +505,24 @@ typedef struct _RTL_ACTIVATION_CONTEXT_STACK_FRAME
 
 typedef struct _ACTIVATION_CONTEXT_STACK
 {
-    PRTL_ACTIVATION_CONTEXT_STACK_FRAME ActiveFrame;
-    LIST_ENTRY FrameListCache;
-    ULONG Flags; // ACTIVATION_CONTEXT_STACK_FLAG_*
-    ULONG NextCookieSequenceNumber;
-    ULONG StackId;
+    union
+    {
+        struct
+        {
+            ULONG Flags;
+            ULONG NextCookieSequenceNumber;
+            struct _RTL_ACTIVATION_CONTEXT_STACK_FRAME *ActiveFrame;
+            LIST_ENTRY FrameListCache;
+        } nt_5_0;
+        struct
+        {
+            PRTL_ACTIVATION_CONTEXT_STACK_FRAME ActiveFrame;
+            LIST_ENTRY FrameListCache;
+            ULONG Flags; // ACTIVATION_CONTEXT_STACK_FLAG_*
+            ULONG NextCookieSequenceNumber;
+            ULONG StackId;
+        };
+    };
 } ACTIVATION_CONTEXT_STACK, *PACTIVATION_CONTEXT_STACK;
 
 // end_private

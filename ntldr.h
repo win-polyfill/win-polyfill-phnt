@@ -7,6 +7,10 @@
 #ifndef _NTLDR_H
 #define _NTLDR_H
 
+#include "phnt_ntdef.h"
+
+#include <libloaderapi.h>
+
 // DLLs
 
 typedef BOOLEAN (NTAPI *PLDR_INIT_ROUTINE)(
@@ -27,6 +31,18 @@ typedef struct _LDRP_CSLIST
 {
     PSINGLE_LIST_ENTRY Tail;
 } LDRP_CSLIST, *PLDRP_CSLIST;
+
+typedef struct _LDRP_CSLIST_DEPENDENT
+{
+    PSINGLE_LIST_ENTRY NextDependentEntry;
+    struct _LDR_DDAG_NODE* DependentDdagNode;
+} LDRP_CSLIST_DEPENDENT, *PLDRP_CSLIST_DEPENDENT;
+
+typedef struct _LDRP_CSLIST_INCOMMING
+{
+    PSINGLE_LIST_ENTRY NextIncommingEntry;
+    struct _LDR_DDAG_NODE* IncommingDdagNode;
+} LDRP_CSLIST_INCOMMING, *PLDRP_CSLIST_INCOMMING;
 
 // symbols
 typedef enum _LDR_DDAG_STATE
@@ -51,20 +67,48 @@ typedef enum _LDR_DDAG_STATE
 // symbols
 typedef struct _LDR_DDAG_NODE
 {
+    // 0x00 0x00 (6.2 and higher)
     LIST_ENTRY Modules;
     PLDR_SERVICE_TAG_RECORD ServiceTagList;
+    // 0x08 0x10 (6.2 and higher)
     ULONG LoadCount;
-    ULONG LoadWhileUnloadingCount;
-    ULONG LowestLink;
+    // 0x10 0x1C (6.2 and higher)
     union
     {
-        LDRP_CSLIST Dependencies;
+        // 6.2 to 6.3
+        ULONG ReferenceCount;
+        // 10.0 and higher
+        ULONG LoadWhileUnloadingCount;
+    };
+    // 0x14 0x20 (6.2 and higher)
+    union
+    {
+        // 6.2 to 6.3
+        ULONG DependencyCount;
+        // 10.0 and higher
+        ULONG LowestLink;
+    };
+    // 0x18 0x28 (6.2 and higher)
+    union
+    {
+        // 6.2 and higher
+        PLDRP_CSLIST_DEPENDENT Dependencies;
+        // 6.2 to 6.3
         SINGLE_LIST_ENTRY RemovalLink;
     };
-    LDRP_CSLIST IncomingDependencies;
+    // 0x1C 0x30 (6.2 and higher)
+    PLDRP_CSLIST_INCOMMING IncomingDependencies;
+    // 0x20 0x38 (6.2 and higher)
     LDR_DDAG_STATE State;
+    // 0x24 0x40 (6.2 and higher)
     SINGLE_LIST_ENTRY CondenseLink;
+    // 0x28 0x48 (6.2 and higher)
     ULONG PreorderNumber;
+    struct
+    {
+        // 0x2C 0x4C (6.2 to 6.3)
+        ULONG LowestLink;
+    } nt_6_2;
 } LDR_DDAG_NODE, *PLDR_DDAG_NODE;
 
 // rev
@@ -107,8 +151,10 @@ typedef struct _LDRP_LOAD_CONTEXT *PLDRP_LOAD_CONTEXT;
 
 // LDR_DATA_TABLE_ENTRY->Flags
 #define LDRP_PACKAGED_BINARY 0x00000001
+#define LDRP_STATIC_LINK 0x00000002
 #define LDRP_MARKED_FOR_REMOVAL 0x00000002
 #define LDRP_IMAGE_DLL 0x00000004
+#define LDRP_SHIMENG_ENTRY_PROCESSED 0x00000008
 #define LDRP_LOAD_NOTIFICATIONS_SENT 0x00000008
 #define LDRP_TELEMETRY_ENTRY_PROCESSED 0x00000010
 #define LDRP_PROCESS_STATIC_IMPORT 0x00000020
@@ -117,14 +163,21 @@ typedef struct _LDRP_LOAD_CONTEXT *PLDRP_LOAD_CONTEXT;
 #define LDRP_SHIM_DLL 0x00000100
 #define LDRP_IN_EXCEPTION_TABLE 0x00000200
 #define LDRP_LOAD_IN_PROGRESS 0x00001000
+#define LDRP_UNLOAD_IN_PROGRESS 0x00002000
 #define LDRP_LOAD_CONFIG_PROCESSED 0x00002000
 #define LDRP_ENTRY_PROCESSED 0x00004000
+#define LDRP_ENTRY_INSERTED 0x00008000
 #define LDRP_PROTECT_DELAY_LOAD 0x00008000
+#define LDRP_CURRENT_LOAD 0x00010000
+#define LDRP_FAILED_BUILTIN_LOAD 0x00020000
 #define LDRP_DONT_CALL_FOR_THREADS 0x00040000
 #define LDRP_PROCESS_ATTACH_CALLED 0x00080000
 #define LDRP_PROCESS_ATTACH_FAILED 0x00100000
+#define LDRP_DEBUG_SYMBOLS_LOADED 0x00100000
+#define LDRP_IMAGE_NOT_AT_BASE 0x00200000
 #define LDRP_COR_DEFERRED_VALIDATE 0x00200000
 #define LDRP_COR_IMAGE 0x00400000
+#define LDRP_COR_OWNS_UNMAP 0x00800000
 #define LDRP_DONT_RELOCATE 0x00800000
 #define LDRP_COR_IL_ONLY 0x01000000
 #define LDRP_CHPE_IMAGE 0x02000000
@@ -138,6 +191,9 @@ typedef struct _LDRP_LOAD_CONTEXT *PLDRP_LOAD_CONTEXT;
 #define LDR_DATA_TABLE_ENTRY_SIZE_WIN10 FIELD_OFFSET(LDR_DATA_TABLE_ENTRY, SigningLevel)
 #define LDR_DATA_TABLE_ENTRY_SIZE_WIN11 sizeof(LDR_DATA_TABLE_ENTRY)
 
+#if 1
+#include "win-polyfill-ldr-data-table-entry.h"
+#else
 // symbols
 typedef struct _LDR_DATA_TABLE_ENTRY
 {
@@ -211,6 +267,7 @@ typedef struct _LDR_DATA_TABLE_ENTRY
     PVOID ActivePatchImageBase;
     LDR_HOT_PATCH_STATE HotPatchState;
 } LDR_DATA_TABLE_ENTRY, *PLDR_DATA_TABLE_ENTRY;
+#endif
 
 #define LDR_IS_DATAFILE(DllHandle) (((ULONG_PTR)(DllHandle)) & (ULONG_PTR)1)
 #define LDR_IS_IMAGEMAPPING(DllHandle) (((ULONG_PTR)(DllHandle)) & (ULONG_PTR)2)

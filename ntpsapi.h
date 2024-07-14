@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Process support functions
  *
  * This file is part of System Informer.
@@ -6,6 +6,14 @@
 
 #ifndef _NTPSAPI_H
 #define _NTPSAPI_H
+
+#include "phnt_ntdef.h"
+
+#include "ntexapi.h"
+
+#if (PHNT_MODE == PHNT_MODE_USER)
+#include "winbase.h"
+#endif
 
 #if (PHNT_MODE == PHNT_MODE_KERNEL)
 #define PROCESS_TERMINATE 0x0001
@@ -73,17 +81,123 @@ typedef ULONG GDI_HANDLE_BUFFER64[GDI_HANDLE_BUFFER_SIZE64];
 #define TLS_EXPANSION_SLOTS 1024
 #endif
 
-// symbols
+// ==PEB_LDR_DATA==
+// https://www.geoffchappell.com/studies/windows/km/ntoskrnl/inc/api/ntpsapi_x/peb_ldr_data.htm?tx=185
+// The PEB_LDR_DATA structure is the defining record of which user-mode modules
+// are loaded in a process. It is essentially the head of three double-linked
+// lists of LDR_DATA_TABLE_ENTRY structures. Each structure represents one
+// loaded module. Each list links through the structures in a different order.
+//
+//
+// Access
+//
+// Each process has the one PEB_LDR_DATA. Its address is kept in the Ldr member
+// of the process’s PEB.
+//
+// In early versions, the PEB_LDR_DATA is in its own heap allocation that is
+// obtained while NTDLL initialises the process. This is wasteful since the
+// process will only ever have the one PEB_LDR_DATA. In version 5.2 and higher,
+// this one and only PEB_LDR_DATA is an internal variable in the NTDLL data. It
+// can be handy, when debugging, to know that the name of this internal variable
+// is PebLdr.
+//
+//
+// Documentation Status
+//
+// In an ideal world, the PEB_LDR_DATA might be opaque outside NTDLL. But
+// various high-level modules supplied with Windows over the years have used at
+// least one member of the PEB_LDR_DATA, which eventually had to be disclosed.
+//
+// A new header, named WINTERNL.H, for previously internal APIs was added to the
+// Software Development Kit (SDK) apparently in 2002, and remains to this day.
+// Anyone competent who was looking at the time, e.g., because they were paid to
+// as work for a Technical Committee that was to enforce the settlement that
+// compelled the disclosure, might have pointed out the PEB_LDR_DATA as a
+// candidate. Somehow, though, it got missed. Make no mistake that I mean here
+// that the Technical Committee can only have been incompetent and gullible, or
+// have been too tired to avoid the appearance, and that by extension this
+// appiles also to the government and court. There is a lesson here for future
+// attempts at using anti-trust legislation against “big tech”.
+//
+// When WINTERNL.H eventually got round to the PEB_LDR_DATA, starting with the
+// SDK for Windows 7, it presented only a modified PEB_LDR_DATA that has just
+// the InMemoryOrderModuleList member, plus padding that gets this member to the
+// same offset as in the true structure. Incomplete as this is, it’s out there
+// now, and Microsoft seems unlikely to change the PEB_LDR_DATA in any way that
+// moves this member.
+//
+//
+// Layout
+//
+// Indeed, the PEB_LDR_DATA is surprisingly stable across Windows versions. No
+// members have yet moved or even been redefined. The structure has grown only
+// by extension. The following table shows the changing sizes:
+//
+// | Version                       | Size (x86) | Size (x64) |
+// |-------------------------------|------------|------------|
+// | 3.51 to 5.0                   | 0x24       |            |
+// | 5.1 to early 6.0 (before SP1) | 0x28       | 0x48       |
+// | late 6.0 to 2004              | 0x30       | 0x58       |
+//
+// These sizes, and the offsets, types and names in the tables that follow, are
+// from public symbol files for the kernel starting with Windows 2000 SP3 and
+// for NTDLL starting with Windows XP. Symbol files for earlier versions do not
+// contain type information for the PEB_LDR_DATA, but something similar is
+// available for a few earlier versions: type information in statically linked
+// libraries GDISRVL.LIB for Windows NT 3.51 and SHELL32.LIB for Windows NT 4.0
+// (both distributed with their respective editions of the Device Driver Kit);
+// and the output of the KDEX2X86 debugger extension’s !strct command for the
+// original Windows 2000. Inspection of binaries anyway confirms that all
+// members that were in use for Windows 2000 SP3 were used the same way as far
+// back as Windows NT 3.1.
+//
+//
+// The Length and Initialized members are set to the size (in bytes) of the
+// structure and to TRUE, respectively, when the structure is prepared. They are
+// not known to change.
+//
+// No use is (yet) known of the SsHandle member in any version.
+//
+// Though EntryInProgress is retained in the symbol files, no use of it is
+// known after version 6.1. In earlier versions, what it points to, when it
+// points to anything, is a LDR_DATA_TABLE_ENTRY for a DLL whose imports are
+// to be resolved. In version 5.1, imports became subject to activation
+// contexts. The importing DLL may redirect its imports via a manifest. If a
+// callback function for DLL manifest probing has been set by an earlier
+// call to the undocumented NTDLL export LdrSetDllManifestProber, then
+// EntryInProgress is set while the callback is made.
+//
+// Though ShutdownThreadId is shown above as a HANDLE, it is indeed a thread
+// ID as suggested by its name. It is picked up from the UniqueThread member
+// of the CLIENT_ID in the TEB of the thread that asks to terminate the
+// process.
 typedef struct _PEB_LDR_DATA
 {
+    // 0x00 0x00 all
     ULONG Length;
+
+    // 0x04 0x04 all
     BOOLEAN Initialized;
+
+    // 0x08 0x08 all
     HANDLE SsHandle;
+
+    // 0x0C 0x10 all
     LIST_ENTRY InLoadOrderModuleList;
+
+    // 0x14 0x20 all
     LIST_ENTRY InMemoryOrderModuleList;
+
+    // 0x1C 0x30 all
     LIST_ENTRY InInitializationOrderModuleList;
+
+    // 0x24 0x40 5.1 and higher
     PVOID EntryInProgress;
+
+    // 0x28 0x48 late 6.0 and higher
     BOOLEAN ShutdownInProgress;
+
+    // 0x2C 0x50 late 6.0 and higher
     HANDLE ShutdownThreadId;
 } PEB_LDR_DATA, *PPEB_LDR_DATA;
 

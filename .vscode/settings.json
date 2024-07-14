@@ -1,0 +1,30 @@
+{
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "files.autoGuessEncoding": true,
+  "editor.tabSize": 4,
+  "editor.indentSize": "tabSize",
+  "editor.formatOnPaste": false,
+  "editor.formatOnSave": false,
+  "C_Cpp.formatting": "clangFormat",
+  "C_Cpp.autoAddFileAssociations": false,
+  "files.encoding": "utf8bom",
+  "cmake.generator": "Ninja Multi-Config",
+  "cmake.buildDirectory": "${workspaceRoot}/build/${buildKitTriple}-${buildKitVersionMajor}",
+  "cmake.additionalCompilerSearchDirs": [
+    "C:/CI-Tools/msys64/mingw64/bin",
+    "C:/CI-Tools/msys64/mingw32/bin",
+    "C:/CI-Tools/msys64/usr/bin"
+  ],
+  "cmake.environment": {
+    "PATH": "C:/Program Files/LLVM/bin/;${env:PATH}"
+  },
+  "cmake.configureArgs": [
+    "-DBUILD_TESTING=ON",
+    "-DCMAKE_C_STANDARD_LIBRARIES=",
+    "-DCMAKE_CXX_STANDARD_LIBRARIES=",
+    "-DCMAKE_LINKER_TYPE=LLD",
+  ],
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+}

@@ -7,6 +7,10 @@
 #ifndef _NTIOAPI_H
 #define _NTIOAPI_H
 
+#include "phnt_ntdef.h"
+
+#include <winioctl.h>
+
 // Create disposition
 
 #define FILE_SUPERSEDE                      0x00000000

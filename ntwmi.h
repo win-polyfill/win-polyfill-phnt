@@ -7,6 +7,10 @@
 #ifndef _NTWMI_H
 #define _NTWMI_H
 
+#include "phnt_ntdef.h"
+
+#include <evntrace.h>
+
 EXTERN_C_START
 
 #ifndef _TRACEHANDLE_DEFINED

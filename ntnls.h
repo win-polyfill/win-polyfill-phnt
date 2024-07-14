@@ -7,6 +7,8 @@
 #ifndef _NTNLS_H
 #define _NTNLS_H
 
+#include "phnt_ntdef.h"
+
 #define MAXIMUM_LEADBYTES 12
 
 typedef struct _CPTABLEINFO

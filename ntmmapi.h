@@ -7,6 +7,8 @@
 #ifndef _NTMMAPI_H
 #define _NTMMAPI_H
 
+#include "phnt_ntdef.h"
+
 // Protection constants
 
 #define PAGE_NOACCESS 0x01

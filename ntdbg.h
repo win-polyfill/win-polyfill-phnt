@@ -7,6 +7,8 @@
 #ifndef _NTDBG_H
 #define _NTDBG_H
 
+#include "phnt_ntdef.h"
+
 // Debugging
 
 NTSYSAPI

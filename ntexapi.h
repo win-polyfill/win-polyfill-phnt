@@ -7,6 +7,8 @@
 #ifndef _NTEXAPI_H
 #define _NTEXAPI_H
 
+#include "phnt_ntdef.h"
+
 #include <ntkeapi.h>
 
 #if (PHNT_MODE != PHNT_MODE_KERNEL)

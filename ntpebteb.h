@@ -7,12 +7,14 @@
 #ifndef _NTPEBTEB_H
 #define _NTPEBTEB_H
 
+#include "phnt_ntdef.h"
+
 typedef struct _RTL_USER_PROCESS_PARAMETERS *PRTL_USER_PROCESS_PARAMETERS;
 typedef struct _RTL_CRITICAL_SECTION *PRTL_CRITICAL_SECTION;
 typedef struct _SILO_USER_SHARED_DATA *PSILO_USER_SHARED_DATA;
 typedef struct _LEAP_SECOND_DATA *PLEAP_SECOND_DATA;
 
-#include <ntsxs.h>
+#include "ntsxs.h"
 
 // private
 #define KACF_OLDGETSHORTPATHNAME 0x00000001
@@ -101,6 +103,9 @@ typedef struct _TELEMETRY_COVERAGE_HEADER
     ULONG HashTable[ANYSIZE_ARRAY];
 } TELEMETRY_COVERAGE_HEADER, *PTELEMETRY_COVERAGE_HEADER;
 
+#if 1
+#include "win-polyfill-peb.h"
+#else
 // symbols
 typedef struct _PEB
 {
@@ -290,6 +295,7 @@ C_ASSERT(FIELD_OFFSET(PEB, SessionId) == 0x1D4);
 //C_ASSERT(sizeof(PEB) == 0x480); // REDSTONE5 // 19H1
 C_ASSERT(sizeof(PEB) == 0x488); // WIN11
 #endif
+#endif
 
 #define GDI_BATCH_BUFFER_SIZE 310
 
@@ -328,6 +334,9 @@ typedef struct _TEB_ACTIVE_FRAME_EX
 #define STATIC_UNICODE_BUFFER_LENGTH 261
 #define WIN32_CLIENT_INFO_LENGTH 62
 
+#if 1
+#include "win-polyfill-teb.h"
+#else
 typedef struct _TEB
 {
     NT_TIB NtTib;
@@ -522,6 +531,7 @@ C_ASSERT(sizeof(TEB) == 0x1878); // 24H2
 #else
 //C_ASSERT(sizeof(TEB) == 0x1018); // WIN11
 C_ASSERT(sizeof(TEB) == 0x1038); // 24H2
+#endif
 #endif
 
 #endif

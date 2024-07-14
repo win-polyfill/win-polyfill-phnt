@@ -1,4 +1,4 @@
-/*
+﻿/*
  * RTL support functions
  *
  * This file is part of System Informer.
@@ -6,6 +6,15 @@
 
 #ifndef _NTRTL_H
 #define _NTRTL_H
+
+#include "phnt_ntdef.h"
+
+#include "ntnls.h"
+#include "ntobapi.h"
+#include "ntmmapi.h"
+#include "ntioapi.h"
+
+#include <winbase.h>
 
 #define RtlOffsetToPointer(Base, Offset) ((PCHAR)(((PCHAR)(Base)) + ((ULONG_PTR)(Offset))))
 #define RtlPointerToOffset(Base, Pointer) ((ULONG)(((PCHAR)(Pointer)) - ((PCHAR)(Base))))
@@ -2729,8 +2738,9 @@ RtlFreeToPeb(
     );
 #endif
 
-// Processes
-
+#if 1
+#include "win-polyfill-rtl-user-process-parameters.h"
+#else
 typedef struct _CURDIR
 {
     UNICODE_STRING DosPath;
@@ -2801,6 +2811,7 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS
     ULONG DefaultThreadpoolThreadMaximum;
     ULONG HeapMemoryTypeMask; // WIN11
 } RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS;
+#endif
 
 #define RTL_USER_PROC_PARAMS_NORMALIZED 0x00000001
 #define RTL_USER_PROC_PROFILE_USER 0x00000002
