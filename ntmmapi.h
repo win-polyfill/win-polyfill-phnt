@@ -585,6 +585,16 @@ NtReadVirtualMemory(
     _Out_opt_ PSIZE_T NumberOfBytesRead
     );
 
+NTSYSCALLAPI
+NTSTATUS
+NTAPI
+NtWow64ReadVirtualMemory64(
+    __in HANDLE ProcessHandle,
+    __in_opt PVOID64 BaseAddress,
+    __out_bcount(BufferSize) PVOID Buffer,
+    __in ULONGLONG BufferSize,
+    __out_opt PULONGLONG NumberOfBytesRead);
+
 #if (PHNT_VERSION >= PHNT_WIN11)
 // rev
 NTSYSCALLAPI
