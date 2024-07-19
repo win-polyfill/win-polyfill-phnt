@@ -2945,7 +2945,7 @@ typedef struct _SMKM_REGION_EXTENT
 
 typedef struct _FILE_OBJECT *PFILE_OBJECT;
 typedef struct _DEVICE_OBJECT *PDEVICE_OBJECT;
-typedef struct _IRP *PIRP;
+typedef PVOID PIRP;
 typedef struct _RTL_BITMAP *PRTL_BITMAP;
 
 typedef struct _SMKM_FILE_INFO
