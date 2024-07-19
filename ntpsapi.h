@@ -672,6 +672,24 @@ typedef struct _PROCESS_HANDLE_TRACING_QUERY
     _Out_ _Field_size_(TotalTraces) PROCESS_HANDLE_TRACING_ENTRY HandleTrace[1];
 } PROCESS_HANDLE_TRACING_QUERY, *PPROCESS_HANDLE_TRACING_QUERY;
 
+typedef struct _KEXECUTE_OPTIONS
+{
+    union
+    {
+        DWORD Reserved;
+        struct
+        {
+            UCHAR ExecuteDisable : 1;
+            UCHAR ExecuteEnable : 1;
+            UCHAR DisableThunkEmulation : 1;
+            UCHAR Permanent : 1;
+            UCHAR ExecuteDispatchEnable : 1;
+            UCHAR ImageDispatchEnable : 1;
+            UCHAR Spare : 2;
+        };
+    };
+} KEXECUTE_OPTIONS, *PKEXECUTE_OPTIONS;
+
 #endif
 
 typedef struct _THREAD_TLS_INFORMATION
@@ -843,6 +861,7 @@ typedef struct _PROCESS_MITIGATION_POLICY_INFORMATION
         PROCESS_MITIGATION_REDIRECTION_TRUST_POLICY RedirectionTrustPolicy;
         PROCESS_MITIGATION_USER_POINTER_AUTH_POLICY UserPointerAuthPolicy;
         PROCESS_MITIGATION_SEHOP_POLICY SEHOPPolicy;
+        DWORD Flags;
     };
 } PROCESS_MITIGATION_POLICY_INFORMATION, *PPROCESS_MITIGATION_POLICY_INFORMATION;
 
@@ -1998,19 +2017,19 @@ NtWaitForAlertByThreadId(
 typedef struct _PROC_THREAD_ATTRIBUTE
 {
     ULONG_PTR Attribute;
-    SIZE_T Size;
-    ULONG_PTR Value;
+    SIZE_T cbSize;
+    PVOID lpValue;
 } PROC_THREAD_ATTRIBUTE, *PPROC_THREAD_ATTRIBUTE;
 
 // private
 typedef struct _PROC_THREAD_ATTRIBUTE_LIST
 {
-    ULONG PresentFlags;
-    ULONG AttributeCount;
-    ULONG LastAttribute;
-    ULONG SpareUlong0;
-    PPROC_THREAD_ATTRIBUTE ExtendedFlagsAttribute;
-    _Field_size_(AttributeCount) PROC_THREAD_ATTRIBUTE Attributes[1];
+    DWORD dwFlags;
+    ULONG Size;
+    ULONG Count;
+    ULONG Reserved;
+    PPROC_THREAD_ATTRIBUTE lpExtendedFlags;
+    _Field_size_(AttributeCount) PROC_THREAD_ATTRIBUTE Entries[1];
 } PROC_THREAD_ATTRIBUTE_LIST, *PPROC_THREAD_ATTRIBUTE_LIST;
 
 // private
