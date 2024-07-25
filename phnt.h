@@ -74,6 +74,8 @@ extern "C" {
 
 #include <ntzwapi.h>
 
+#include "conapi.h"
+
 #endif
 
 #ifdef __cplusplus

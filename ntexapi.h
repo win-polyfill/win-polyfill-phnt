@@ -5453,8 +5453,9 @@ typedef struct _KUSER_SHARED_DATA
     ULONG Spare;
 
     ULONG64 UserPointerAuthMask;
-
+#if defined(NTDDI_WIN10_FE) && (NTDDI_VERSION >= NTDDI_WIN10_FE)
     ULONG InternsReserved[210];
+#endif
 } KUSER_SHARED_DATA, *PKUSER_SHARED_DATA;
 
 C_ASSERT(FIELD_OFFSET(KUSER_SHARED_DATA, TickCountLowDeprecated) == 0x0);

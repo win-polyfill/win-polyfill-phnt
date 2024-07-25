@@ -53,6 +53,15 @@
 #if (PHNT_MODE != PHNT_MODE_KERNEL)
 #include "win-polyfill-arch.h"
 
+#if defined(__clang__)
+_Pragma("clang diagnostic ignored \"-Wpragma-pack\"")
+_Pragma("clang diagnostic ignored \"-Wmicrosoft-enum-forward-reference\"")
+_Pragma("clang diagnostic ignored \"-Wignored-attributes\"")
+_Pragma("clang diagnostic ignored \"-Wmicrosoft-static-assert\"")
+_Pragma("clang diagnostic ignored \"-Wvisibility\"")
+_Pragma("clang diagnostic ignored \"-Wmicrosoft-anon-tag\"")
+#endif
+
 #ifndef INT_ERROR
 #define INT_ERROR (-1)
 #endif
