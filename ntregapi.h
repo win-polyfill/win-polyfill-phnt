@@ -854,7 +854,7 @@ NtThawRegistry(
 #endif
 
 #if (PHNT_VERSION >= PHNT_REDSTONE)
-NTSTATUS NtCreateRegistryTransaction(
+NTSTATUS NTAPI NtCreateRegistryTransaction(
     _Out_ HANDLE *RegistryTransactionHandle,
     _In_ ACCESS_MASK DesiredAccess,
     _In_opt_ POBJECT_ATTRIBUTES ObjAttributes,
@@ -863,7 +863,7 @@ NTSTATUS NtCreateRegistryTransaction(
 #endif
 
 #if (PHNT_VERSION >= PHNT_REDSTONE)
-NTSTATUS NtOpenRegistryTransaction(
+NTSTATUS NTAPI NtOpenRegistryTransaction(
     _Out_ HANDLE *RegistryTransactionHandle,
     _In_ ACCESS_MASK DesiredAccess,
     _In_ POBJECT_ATTRIBUTES ObjAttributes
@@ -871,14 +871,14 @@ NTSTATUS NtOpenRegistryTransaction(
 #endif
 
 #if (PHNT_VERSION >= PHNT_REDSTONE)
-NTSTATUS NtCommitRegistryTransaction(
+NTSTATUS NTAPI NtCommitRegistryTransaction(
     _In_ HANDLE RegistryTransactionHandle,
     _Reserved_ ULONG Flags
     );
 #endif
 
 #if (PHNT_VERSION >= PHNT_REDSTONE)
-NTSTATUS NtRollbackRegistryTransaction(
+NTSTATUS NTAPI NtRollbackRegistryTransaction(
     _In_ HANDLE RegistryTransactionHandle,
     _Reserved_ ULONG Flags
     );

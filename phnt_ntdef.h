@@ -168,8 +168,10 @@ typedef struct DECLSPEC_ALIGN(MEMORY_ALLOCATION_ALIGNMENT) _QUAD_PTR
 typedef ULONG LOGICAL;
 typedef ULONG *PLOGICAL;
 
+#ifndef NTSTATUS_DEFINED
 typedef _Return_type_success_(return >= 0) LONG NTSTATUS;
 typedef NTSTATUS *PNTSTATUS;
+#endif
 
 // Cardinal types
 

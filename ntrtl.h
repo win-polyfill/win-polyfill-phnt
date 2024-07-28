@@ -1432,8 +1432,8 @@ NTSYSAPI
 LONG
 NTAPI
 RtlCompareString(
-    _In_ PSTRING String1,
-    _In_ PSTRING String2,
+    _In_ PCSTRING String1,
+    _In_ PCSTRING String2,
     _In_ BOOLEAN CaseInSensitive
     );
 
@@ -1626,8 +1626,8 @@ NTSYSAPI
 LONG
 NTAPI
 RtlCompareUnicodeString(
-    _In_ PUNICODE_STRING String1,
-    _In_ PUNICODE_STRING String2,
+    _In_ PCUNICODE_STRING String1,
+    _In_ PCUNICODE_STRING String2,
     _In_ BOOLEAN CaseInSensitive
     );
 
@@ -1674,7 +1674,7 @@ NTSTATUS
 NTAPI
 RtlValidateUnicodeString(
     _In_ ULONG Flags,
-    _In_ PUNICODE_STRING String
+    _In_ PCUNICODE_STRING String
     );
 
 _Must_inspect_result_
@@ -6148,7 +6148,7 @@ RtlIpv6StringToAddressExW(
 
 typedef struct _TIME_FIELDS
 {
-    CSHORT Year; // 1601...
+    CSHORT Year; // 1601.
     CSHORT Month; // 1..12
     CSHORT Day; // 1..31
     CSHORT Hour; // 0..23
@@ -6962,7 +6962,7 @@ RtlInitializeSid(
 #if (PHNT_VERSION >= PHNT_THRESHOLD)
 NTSYSAPI
 NTSTATUS
-NTAPI
+__cdecl
 RtlInitializeSidEx(
     _Out_writes_bytes_(SECURITY_SID_SIZE(SubAuthorityCount)) PSID Sid,
     _In_ PSID_IDENTIFIER_AUTHORITY IdentifierAuthority,

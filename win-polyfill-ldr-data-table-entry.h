@@ -17,12 +17,16 @@ typedef struct _LDR_DATA_TABLE_ENTRY
         // 0x10 0x20 (6.2 and higher)
         LIST_ENTRY InProgressLinks;
     };
-    VOID *DllBase;                      //0x30
-    VOID *EntryPoint;                   //0x38
-    ULONG SizeOfImage;                  //0x40
-    struct _UNICODE_STRING FullDllName; //0x48
+    // 0x18 0x30 (all)
+    VOID *DllBase;
+    // 0x1C 0x38 (all)
+    VOID *EntryPoint;
+    // 0x20 0x40 (all)
+    ULONG SizeOfImage;
+    // 0x24 0x48 (all)
+    struct _UNICODE_STRING FullDllName;
     // 0x2C 0x58 (all)
-    struct _UNICODE_STRING BaseDllName; //0x58
+    struct _UNICODE_STRING BaseDllName;
     // 0x34 0x68 (all)
     union
     {
@@ -47,7 +51,9 @@ typedef struct _LDR_DATA_TABLE_ENTRY
             // 0x00000004
             ULONG ImageDll : 1;
 
-            //
+            // 5.1 to 6.1 LDRP_SHIMENG_ENTRY_PROCESSED
+            // 6.2 and higher LDRP_LOAD_NOTIFICATIONS_SENT
+            // 6.2 and higher
             // 0x00000008
             ULONG LoadNotificationsSent : 1;
             ULONG TelemetryEntryProcessed : 1;
@@ -57,7 +63,11 @@ typedef struct _LDR_DATA_TABLE_ENTRY
             ULONG ShimDll : 1;
             ULONG InExceptionTable : 1;
             ULONG ReservedFlags1 : 2;
+            // 3.51 and higher LDRP_LOAD_IN_PROGRESS
+            // 6.2 and higher
+            // 0x00001000
             ULONG LoadInProgress : 1;
+
             // 3.51 to 6.1 LDRP_UNLOAD_IN_PROGRESS
             // 6.2 to 6.3 ReservedFlags2
             // 10.0 and higher
@@ -69,6 +79,9 @@ typedef struct _LDR_DATA_TABLE_ENTRY
             ULONG EntryProcessed : 1;
             ULONG ProtectDelayLoad : 1;
             ULONG ReservedFlags3 : 2;
+            // 3.51 and higher LDRP_DONT_CALL_FOR_THREADS
+            // 6.2 and higher
+            // 0x00040000
             ULONG DontCallForThreads : 1;
             // 3.51 and higher LDRP_PROCESS_ATTACH_CALLED
             // 6.2 and higher
@@ -79,8 +92,14 @@ typedef struct _LDR_DATA_TABLE_ENTRY
             // 6.2 and higher
             // 0x00200000
             ULONG CorDeferredValidate : 1;
+            // 5.1 and higher LDRP_COR_IMAGE
+            // 6.2 and higher
+            // 0x00400000
             ULONG CorImage : 1;
             ULONG DontRelocate : 1;
+            // 5.1 and higher LDRP_COR_IL_ONLY
+            // 6.2 and higher
+            // 0x01000000
             ULONG CorILOnly : 1;
             ULONG ChpeImage : 1;
             ULONG ChpeEmulatorImage : 1;
@@ -162,11 +181,13 @@ typedef struct _LDR_DATA_TABLE_ENTRY
     // 0x9C 0x0114 (10.0 and higher)
     ULONG ReferenceCount;
     // 0xA0 0x0118 (10.0 1607 and higher)
-    ULONG DependentLoadFlags; //0x118
+    ULONG DependentLoadFlags;
     // 0xA4 0x011C (10.0 1703 and higher)
     UCHAR SigningLevel;
-    ULONG CheckSum; //0x120
-    // since 22H1
-    VOID *ActivePatchImageBase;              //0x128
-    enum _LDR_HOT_PATCH_STATE HotPatchState; //0x130
+    // 0xA8 0x0120 (11 21H2 and higher)
+    ULONG CheckSum;
+    // 0xAC 0x0128 (11 21H2 and higher)
+    VOID *ActivePatchImageBase;
+    // 0xB0 0x0130 (11 21H2 and higher)
+    enum _LDR_HOT_PATCH_STATE HotPatchState;
 } LDR_DATA_TABLE_ENTRY, *PLDR_DATA_TABLE_ENTRY;

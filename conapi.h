@@ -15,7 +15,7 @@ Revision History:
 --*/
 
 #pragma once
-// these should be in precomp but aren't being picked up...
+// these should be in precomp but aren't being picked up.
 #define STATUS_SHARING_VIOLATION         ((NTSTATUS)0xC0000043L)
 
 #include <wincon.h>

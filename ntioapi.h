@@ -2773,7 +2773,7 @@ typedef struct _MOUNTMGR_VOLUME_PATHS
 #define IRP_MJ_QUERY_QUOTA                           0x19
 #define IRP_MJ_SET_QUOTA                             0x1a
 #define IRP_MJ_PNP                                   0x1b
-#define IRP_MJ_PNP_POWER                             IRP_MJ_PNP      // Obsolete....
+#define IRP_MJ_PNP_POWER                             IRP_MJ_PNP      // Obsolete.
 #define IRP_MJ_MAXIMUM_FUNCTION                      0x1b
 #define IRP_MJ_ACQUIRE_FOR_SECTION_SYNCHRONIZATION   ((UCHAR)-1)
 #define IRP_MJ_RELEASE_FOR_SECTION_SYNCHRONIZATION   ((UCHAR)-2)
