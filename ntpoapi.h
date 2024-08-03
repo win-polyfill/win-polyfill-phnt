@@ -750,7 +750,7 @@ NtSetThreadExecutionState(
     _Out_ EXECUTION_STATE *PreviousFlags
     );
 
-#if (PHNT_VERSION < PHNT_WIN7)
+#if (PHNT_VERSION < PHNT_WIN7) || defined(PHNT_ENABLE_ALL)
 NTSYSCALLAPI
 NTSTATUS
 NTAPI

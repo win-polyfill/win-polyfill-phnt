@@ -5831,6 +5831,15 @@ RtlLoadString(
     _Inout_opt_ PULONG ReturnLanguageLen
     );
 
+NTSYSAPI
+BOOLEAN
+NTAPI
+RtlIsNameLegalDOS8Dot3 (
+    IN PUNICODE_STRING Name,
+    IN OUT POEM_STRING OemName OPTIONAL,
+    IN OUT PBOOLEAN NameContainsSpaces OPTIONAL
+    );
+
 // Errors
 
 NTSYSAPI

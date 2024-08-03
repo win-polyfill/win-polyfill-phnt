@@ -66,7 +66,9 @@ extern "C" {
 
 #include <ntwow64.h>
 
-#include <ntlsa.h>
+#include <ntsecapi.h>
+#include "ntlsa.h"
+
 #include <ntsam.h>
 
 #include <ntmisc.h>
@@ -74,7 +76,10 @@ extern "C" {
 
 #include <ntzwapi.h>
 
-#include "conapi.h"
+#include <ntsmss.h>
+#include <subprocesstag.h>
+
+#include <conapi.h>
 
 #endif
 
